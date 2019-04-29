@@ -36,6 +36,7 @@ RPC_ABIS = {
     # eth
     'eth_call': TRANSACTION_PARAMS_ABIS,
     'eth_estimateGas': TRANSACTION_PARAMS_ABIS,
+    'eth_estimateGas2': TRANSACTION_PARAMS_ABIS,
     'eth_getBalance': ['address', None],
     'eth_getBlockByHash': ['bytes32', 'bool'],
     'eth_getBlockTransactionCountByHash': ['bytes32'],

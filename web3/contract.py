@@ -449,6 +449,53 @@ class Contract:
 
         return Caller()
 
+    def estimateGas2(self, transaction=None):
+        """
+        Estimate the gas for a call
+        """
+        if transaction is None:
+            estimate_transaction = {}
+        else:
+            estimate_transaction = dict(**transaction)
+
+        if 'data' in estimate_transaction:
+            raise ValueError("Cannot set data in call transaction")
+        if 'to' in estimate_transaction:
+            raise ValueError("Cannot set to in call transaction")
+
+        if self.address:
+            estimate_transaction.setdefault('to', self.address)
+        if self.web3.eth.defaultAccount is not empty:
+            estimate_transaction.setdefault('from', self.web3.eth.defaultAccount)
+
+        if 'to' not in estimate_transaction:
+            if isinstance(self, type):
+                raise ValueError(
+                    "When using `Contract.estimateGas` from a contract factory "
+                    "you must provide a `to` address with the transaction"
+                )
+            else:
+                raise ValueError(
+                    "Please ensure that this contract instance has an address."
+                )
+
+        contract = self
+
+        class Caller:
+            def __getattr__(self, function_name):
+                callable_fn = functools.partial(
+                    estimate_gas_for_function2,
+                    contract.address,
+                    contract.web3,
+                    function_name,
+                    estimate_transaction,
+                    contract.abi,
+                    None,
+                )
+                return callable_fn
+
+        return Caller()
+
     @combomethod
     @deprecated_for("contract.<functions/events>.<method name>.call")
     def call(self, transaction=None):
@@ -1489,6 +1536,33 @@ def estimate_gas_for_function(
     gas_estimate = web3.eth.estimateGas(estimate_transaction)
     return gas_estimate
 
+def estimate_gas_for_function2(
+        address,
+        web3,
+        fn_identifier=None,
+        transaction=None,
+        contract_abi=None,
+        fn_abi=None,
+        *args,
+        **kwargs):
+    """Estimates gas cost a function call would take.
+
+    Don't call this directly, instead use :meth:`Contract.estimateGas`
+    on your contract instance.
+    """
+    estimate_transaction = prepare_transaction(
+        address,
+        web3,
+        fn_identifier=fn_identifier,
+        contract_abi=contract_abi,
+        fn_abi=fn_abi,
+        transaction=transaction,
+        fn_args=args,
+        fn_kwargs=kwargs,
+    )
+
+    gas_estimate = web3.eth.estimateGas2(estimate_transaction)
+    return gas_estimate
 
 def build_transaction_for_function(
         address,

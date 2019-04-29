@@ -274,6 +274,7 @@ pythonic_middleware = construct_formatting_middleware(
             block_number_formatter,
         ),
         'eth_estimateGas': apply_formatter_at_index(transaction_param_formatter, 0),
+        'eth_estimateGas2': apply_formatter_at_index(transaction_param_formatter, 0),
         'eth_sendTransaction': apply_formatter_at_index(transaction_param_formatter, 0),
         # personal
         'personal_importRawKey': apply_formatter_at_index(
@@ -298,6 +299,7 @@ pythonic_middleware = construct_formatting_middleware(
         'eth_blockNumber': to_integer_if_hex,
         'eth_coinbase': to_checksum_address,
         'eth_estimateGas': to_integer_if_hex,
+        'eth_estimateGas2': to_integer_if_hex,
         'eth_gasPrice': to_integer_if_hex,
         'eth_getBalance': to_integer_if_hex,
         'eth_getBlockByHash': apply_formatter_if(is_not_null, block_formatter),

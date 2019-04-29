@@ -304,6 +304,16 @@ class Eth(Module):
             [transaction],
         )
 
+    def estimateGas2(self, transaction):
+        # TODO: move to middleware
+        if 'from' not in transaction and is_checksum_address(self.defaultAccount):
+            transaction = assoc(transaction, 'from', self.defaultAccount)
+
+        return self.web3.manager.request_blocking(
+            "eth_estimateGas2",
+            [transaction],
+        )
+
     def filter(self, filter_params=None, filter_id=None):
         if filter_id and filter_params:
             raise TypeError(
